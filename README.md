@@ -1,1 +1,2 @@
-testing azure deployment
+testing azure build
+http://arminsoft-new.azurewebsites.net/
