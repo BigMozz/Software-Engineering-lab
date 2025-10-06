@@ -12,6 +12,7 @@ public class BuddyInfo {
 
     private String buddyName;
     private String buddyNumber;
+    private int address;
 
     @ManyToOne
     @JsonIgnore
