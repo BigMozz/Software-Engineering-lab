@@ -3,11 +3,33 @@
 <head>
     <title>Address Book</title>
     <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-<h1>Address Book ID: <span th:text="${addressBook.id}"></span></h1>
+<h1>Address Book Management</h1>
 
-<h2>Buddies:</h2>
+<h2>Create New Address Book</h2>
+<form action="#" th:action="@{/addressbooks/create}" method="post">
+    <button type="submit">Create New Address Book</button>
+</form>
+
+<h2>Add buddy to Address Book</h2>
+<form id="addBuddyForm" action="#" th:action="@{/addressbooks/{id}/buddies/add(id=${addressBook.id})}"
+      method="post" th:data-addressbook-id="${addressBook.id}">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div>
+        <label for="phone">Phone Number:</label>
+        <input type="text" id="phone" name="phone" required>
+    </div>
+    <button type="submit">Add buddy</button>
+</form>
+
+<h2>Address Book ID: <span th:text="${addressBook.id}"></span></h2>
+
+<h3>Buddies:</h3>
 <div th:if="${addressBook.buddies.empty}">
     <p>No buddies in this address book.</p>
 </div>
@@ -17,5 +39,58 @@
         <span th:text="${buddy.buddyNumber}"></span>
     </li>
 </ul>
+<script>
+    $(document).ready(function() {
+        // Handle Add Buddy form submission
+        $('#addBuddyForm').submit(function(event) {
+            event.preventDefault(); // Prevent normal form submission
+
+            const addressBookId = $(this).data('addressbook-id');
+            const name = $('#name').val();
+            const phone = $('#phone').val();
+
+            console.log('Adding buddy:', name, phone, 'to address book:', addressBookId);
+
+            // Make AJAX call to REST API
+            $.ajax({
+                url: '/api/addressbooks/' + addressBookId + '/buddies',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    buddyName: name,
+                    buddyNumber: phone
+                }),
+                success: function(updatedAddressBook) {
+                    console.log('Success! Updated address book:', updatedAddressBook);
+                    updateBuddiesList(updatedAddressBook.buddies);
+                    $('#addBuddyForm')[0].reset(); // Clear the form
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    // Fallback to normal form submission
+                    $('#addBuddyForm').off('submit').submit();
+                }
+            });
+        });
+    });
+
+    function updateBuddiesList(buddies) {
+        console.log('Updating buddies list with:', buddies);
+
+        if (buddies.length === 0) {
+            $('div p:contains("No buddies")').parent().show();
+            $('ul').hide();
+        } else {
+            $('div p:contains("No buddies")').parent().hide();
+            $('ul').show().empty();
+
+            $.each(buddies, function(index, buddy) {
+                $('ul').append(
+                    $('<li>').html('<span>' + buddy.buddyName + '</span> - <span>' + buddy.buddyNumber + '</span>')
+                );
+            });
+        }
+    }
+</script>
 </body>
 </html>
