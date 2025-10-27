@@ -41,6 +41,9 @@
 </ul>
 <script>
     $(document).ready(function() {
+        // Update the address book ID when page loads
+        updateAddressBookId();
+
         // Handle Add Buddy form submission
         $('#addBuddyForm').submit(function(event) {
             event.preventDefault(); // Prevent normal form submission
@@ -73,6 +76,16 @@
             });
         });
     });
+
+    function updateAddressBookId() {
+        // Get the current address book ID from the page
+        const currentAddressBookId = $('span:contains("Address Book ID:")').next().text();
+        console.log('Current address book ID:', currentAddressBookId);
+
+        // Update the form's data attribute
+        $('#addBuddyForm').data('addressbook-id', currentAddressBookId);
+        $('#addBuddyForm').attr('data-addressbook-id', currentAddressBookId);
+    }
 
     function updateBuddiesList(buddies) {
         console.log('Updating buddies list with:', buddies);
